@@ -4,7 +4,7 @@
  *
  * Code snippet expansion engine: type a snippet tag, press the assigned
  * shortcut (default Tab), and QuickText expands it with hotspot navigation.
- * Snippets are stored per-language in an INI-like file (~/.notepad++/QuickText.ini).
+ * Snippets are stored per-language in an INI-like file (~/.nextpad++/QuickText.ini).
  *
  * License: GPLv2+
  */
@@ -83,7 +83,7 @@ static intptr_t sci(NppHandle h, uint32_t msg, uintptr_t w = 0, intptr_t l = 0)
 static std::string getConfigDir()
 {
     // Ask the host for its plugin config directory (creates it if needed).
-    // Fall back to ~/.notepad++ if NPPM_GETPLUGINSCONFIGDIR returns empty.
+    // Fall back to ~/.nextpad++ if NPPM_GETPLUGINSCONFIGDIR returns empty.
     char buf[1024] = {};
     nppData._sendMessage(nppData._nppHandle,
                          NPPM_GETPLUGINSCONFIGDIR,
@@ -93,7 +93,7 @@ static std::string getConfigDir()
         return std::string(buf);
 
     @autoreleasepool {
-        NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:@".notepad++"];
+        NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:@".nextpad++"];
         [[NSFileManager defaultManager] createDirectoryAtPath:dir
                                   withIntermediateDirectories:YES
                                                    attributes:nil
@@ -263,9 +263,9 @@ static void loadFiles()
         confFilePath  = cfgDir + "/QuickText.conf.json";
 
         // One-shot migration from the pre-fix location
-        // (~/.notepad++/QuickText.* → plugins/Config/QuickText.*).
+        // (~/.nextpad++/QuickText.* → plugins/Config/QuickText.*).
         NSFileManager *fm = [NSFileManager defaultManager];
-        NSString *oldBase = [NSHomeDirectory() stringByAppendingPathComponent:@".notepad++"];
+        NSString *oldBase = [NSHomeDirectory() stringByAppendingPathComponent:@".nextpad++"];
         auto migrate = [&](const std::string &newPath, NSString *oldName) {
             NSString *newNS = [NSString stringWithUTF8String:newPath.c_str()];
             NSString *oldNS = [oldBase stringByAppendingPathComponent:oldName];
@@ -500,7 +500,7 @@ static void showSettings()
              "Use Scintilla AutoComplete: %s\n"
              "Insert on AutoComplete: %s\n"
              "Convert tabs: %s\n\n"
-             "Edit the config file (~/.notepad++/QuickText.conf.json) to change settings,\n"
+             "Edit the config file (~/.nextpad++/QuickText.conf.json) to change settings,\n"
              "then use 'Refresh Configuration'.",
             allowedChars.c_str(),
             g_bUseSciAutoC ? "Yes" : "No",

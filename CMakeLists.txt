@@ -17,5 +17,5 @@ target_include_directories(nppQuickText PRIVATE
     ${SCINTILLA_INCLUDE})
 target_link_libraries(nppQuickText PRIVATE "-framework Cocoa")
 set_target_properties(nppQuickText PROPERTIES PREFIX "" SUFFIX ".dylib")
-set(PLUGIN_INSTALL_DIR "$ENV{HOME}/.notepad++/plugins/nppQuickText")
+set(PLUGIN_INSTALL_DIR "$ENV{HOME}/.nextpad++/plugins/nppQuickText")
 install(TARGETS nppQuickText DESTINATION "${PLUGIN_INSTALL_DIR}")
