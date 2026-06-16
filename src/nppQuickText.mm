@@ -83,7 +83,8 @@ static intptr_t sci(NppHandle h, uint32_t msg, uintptr_t w = 0, intptr_t l = 0)
 static std::string getConfigDir()
 {
     // Ask the host for its plugin config directory (creates it if needed).
-    // Fall back to ~/.nextpad++ if NPPM_GETPLUGINSCONFIGDIR returns empty.
+    // Fall back to ~/Library/Application Support/Nextpad++/plugins/Config if
+    // NPPM_GETPLUGINSCONFIGDIR returns empty (it does not on shipped versions).
     char buf[1024] = {};
     nppData._sendMessage(nppData._nppHandle,
                          NPPM_GETPLUGINSCONFIGDIR,
@@ -93,7 +94,9 @@ static std::string getConfigDir()
         return std::string(buf);
 
     @autoreleasepool {
-        NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:@".nextpad++"];
+        NSString *dir = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+                             NSUserDomainMask, YES).firstObject
+                             stringByAppendingPathComponent:@"Nextpad++/plugins/Config"];
         [[NSFileManager defaultManager] createDirectoryAtPath:dir
                                   withIntermediateDirectories:YES
                                                    attributes:nil
@@ -500,7 +503,7 @@ static void showSettings()
              "Use Scintilla AutoComplete: %s\n"
              "Insert on AutoComplete: %s\n"
              "Convert tabs: %s\n\n"
-             "Edit the config file (~/.nextpad++/QuickText.conf.json) to change settings,\n"
+             "Edit QuickText.conf.json in the plugin config folder to change settings,\n"
              "then use 'Refresh Configuration'.",
             allowedChars.c_str(),
             g_bUseSciAutoC ? "Yes" : "No",
