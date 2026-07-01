@@ -382,15 +382,27 @@ static void doQuickText()
     nppData._sendMessage(nppData._nppHandle, NPPM_GETCURRENTLANGTYPE, 0, (intptr_t)&langType);
     std::string sLangType = std::to_string(langType);
     std::string sGlobalType = "255";
+    // UDL buffers (e.g. the preinstalled "markdown" UDL) now report L_USER (15),
+    // since the host resolves User Defined Languages. Also honour the plain-text
+    // section "0" for a UDL so snippets users kept there keep expanding — this
+    // preserves the pre-host-change behaviour with no regression.
+    const bool isUDL = (langType == 15);   // L_USER
+    static const std::string sTextType = "0";
 
-    bool snipInLang   = snipExists(snips, sLangType, snip);
+    bool snipInLang   = snipExists(snips, sLangType, snip) ||
+                        (isUDL && snipExists(snips, sTextType, snip));
     bool snipInGlobal = snipExists(snips, sGlobalType, snip);
 
     // Build autocomplete list
     SnipList snipList = querySnips(snips, sLangType, snip);
+    if (isUDL) {
+        SnipList tList = querySnips(snips, sTextType, snip);
+        snipList.insert(snipList.end(), tList.begin(), tList.end());
+    }
     SnipList gList    = querySnips(snips, sGlobalType, snip);
     snipList.insert(snipList.end(), gList.begin(), gList.end());
     std::sort(snipList.begin(), snipList.end());
+    snipList.erase(std::unique(snipList.begin(), snipList.end()), snipList.end());
 
     if (!snipList.empty() && (endPos - startPos > 0) && g_bUseSciAutoC) {
         // Show autocomplete list
@@ -433,10 +445,13 @@ static void doQuickText()
             delete[] indBuf;
         }
 
-        // Get snippet text
+        // Get snippet text (UDL: the language "15" section first, then the "0"
+        // plain-text section, then global).
         std::string snippetText;
-        if (snipInLang)
+        if (snipExists(snips, sLangType, snip))
             snippetText = snips[sLangType][snip];
+        else if (isUDL && snipExists(snips, sTextType, snip))
+            snippetText = snips[sTextType][snip];
         else
             snippetText = snips[sGlobalType][snip];
 
